@@ -1,0 +1,8 @@
+<div class="home-container">
+    <h1>Welcome to Event Management App</h1>
+    <p>Use the navigation above to create and view events.</p>
+    <div class="backend-status">
+        <button (click)="checkBackend()">Check backend</button>
+        <span *ngIf="backendStatus">{{ backendStatus }}</span>
+    </div>
+</div>

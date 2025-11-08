@@ -1,8 +1,21 @@
 import { Routes } from '@angular/router';
+import { Home } from './home/home';
+import { Venue } from './venue/venue';
+import { Event } from './event/event';
 
 export const routes: Routes = [
     {
         path: '',
-        loadComponent: () => import('./home/home').then(m => m.Home)
+        component: Home,
+    },
+
+    {
+        path: 'event',
+        component: Event,
+    },
+
+    {
+        path: 'venue',
+        component: Venue,
     }
 ];

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { Venue, VenueService } from './venue.service';
 
 // Event model matching backend EventResponse
@@ -71,11 +71,15 @@ export class EventService {
 
   // Simple ping to check backend availability using /api/events
   ping(): Observable<{ ok: boolean; message?: string }> {
-    return this.http.get<unknown>(this.apiUrl).pipe(
-      map(() => ({
+    return this.http.get<any[]>(this.apiUrl).pipe(
+      map((events) => ({
         ok: true,
-        message: 'Backend reachable'
+        message: `Received ${events.length} event(s)`
       })),
+      catchError((err) => {
+        console.error('Ping failed', err);
+        return of({ ok: false, message: err.message || 'Backend unreachable' });
+      })
     );
   }
 }
