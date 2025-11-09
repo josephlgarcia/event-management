@@ -3,7 +3,7 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { map } from 'rxjs/operators';
 
-export interface Venue {
+export interface VenueResponse {
   id: number;
   name: string;
   address?: string;
@@ -26,23 +26,23 @@ export class VenueService {
   constructor(private readonly http: HttpClient) { }
 
   // Get all venues
-  getAll(): Observable<Venue[]> {
-    return this.http.get<Venue[]>(this.apiUrl);
+  getAll(): Observable<VenueResponse[]> {
+    return this.http.get<VenueResponse[]>(this.apiUrl);
   }
 
   // Get a single venue by ID
-  getById(id: number): Observable<Venue> {
-    return this.http.get<Venue>(`${this.apiUrl}/${id}`);
+  getById(id: number): Observable<VenueResponse> {
+    return this.http.get<VenueResponse>(`${this.apiUrl}/${id}`);
   }
 
   // Create a new venue
-  create(venue: VenueRequest): Observable<Venue> {
-    return this.http.post<Venue>(this.apiUrl, venue);
+  create(venue: VenueRequest): Observable<VenueResponse> {
+    return this.http.post<VenueResponse>(this.apiUrl, venue);
   }
 
   // Update an existing venue
-  update(id: number, venue: VenueRequest): Observable<Venue> {
-    return this.http.put<Venue>(`${this.apiUrl}/${id}`, venue);
+  update(id: number, venue: VenueRequest): Observable<VenueResponse> {
+    return this.http.put<VenueResponse>(`${this.apiUrl}/${id}`, venue);
   }
 
   // Delete a venue

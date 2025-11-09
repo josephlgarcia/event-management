@@ -1,1 +1,146 @@
-<p>event works!</p>
+<div class="event-container">
+    <app-toast />
+
+    <header class="page-header">
+        <h1>Event Management</h1>
+        <p class="subtitle">Create and manage your events</p>
+    </header>
+
+    <!-- Error Message Display -->
+    @if (errorMessage) {
+    <div class="error-banner">
+        <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293z"
+                clip-rule="evenodd" />
+        </svg>
+        <div class="error-content">
+            <span class="error-text">{{ errorMessage }}</span>
+        </div>
+    </div>
+    }
+
+    <!-- Loading Spinner -->
+    @if (isLoading) {
+    <div class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+    </div>
+    }
+
+    <!-- Event Form -->
+    <section class="form-section">
+        <h2>Create New Event</h2>
+        <form class="event-form" (ngSubmit)="addEvent()">
+            <div class="form-group">
+                <label for="eventName">Event Name</label>
+                <input id="eventName" type="text" [(ngModel)]="name" name="name" placeholder="Enter event name"
+                    class="form-input" [class.input-error]="fieldErrors['name']" />
+                @if (fieldErrors['name']) {
+                <span class="field-error">
+                    {{ fieldErrors['name'] }}
+                </span>
+                }
+            </div>
+
+            <div class="form-group">
+                <label for="eventDate">Event Date</label>
+                <input id="eventDate" type="datetime-local" [(ngModel)]="date" name="date" class="form-input"
+                    [class.input-error]="fieldErrors['date']" />
+                @if (fieldErrors['date']) {
+                <span class="field-error">
+                    {{ fieldErrors['date'] }}
+                </span>
+                }
+            </div>
+
+            <div class="form-group">
+                <label for="eventVenue">Venue</label>
+                <select id="eventVenue" [(ngModel)]="venueId" name="venueId" class="form-select"
+                    [class.input-error]="fieldErrors['venueId']">
+                    <option [ngValue]="undefined">Select a venue</option>
+                    @for (venue of venues; track venue.id) {
+                    <option [ngValue]="venue.id">
+                        Nombre: {{ venue.name }}. Dirección: {{ venue.address }}. Capacidad: {{ venue.capacity }}
+                    </option>
+                    }
+                </select>
+                @if (fieldErrors['venueId']) {
+                <span class="field-error">
+                    {{ fieldErrors['venueId'] }}
+                </span>
+                }
+            </div>
+
+            <button type="submit" class="btn-primary" [disabled]="isLoading">
+                <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                        clip-rule="evenodd" />
+                </svg>
+                Create Event
+            </button>
+        </form>
+    </section>
+
+    <!-- Events List -->
+    <section class="events-section">
+        <div class="section-header">
+            <h2>Events List</h2>
+            <span class="event-count">{{ events.length }} event(s)</span>
+        </div>
+
+        @if (events.length === 0 && !isLoading) {
+        <div class="empty-state">
+            <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <h3>No events yet</h3>
+            <p>Create your first event using the form above</p>
+        </div>
+        }
+
+        <div class="events-grid">
+            @for (event of events; track event.id) {
+            <div class="event-card">
+                <div class="event-header">
+                    <h3 class="event-name">{{ event.name }}</h3>
+                    <button class="btn-delete" (click)="deleteEvent(event.id)" title="Delete event">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="event-details">
+                    <div class="event-detail-item">
+                        <svg class="detail-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                            fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <span>{{ event.date | date: 'medium' }}</span>
+                    </div>
+
+                    @if (event.venue?.name) {
+                    <div class="event-detail-item">
+                        <svg class="detail-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                            fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <span>{{ event.venue?.name }}, {{ event.venue?.address }}</span>
+                    </div>
+                    }
+                </div>
+            </div>
+            }
+        </div>
+    </section>
+</div>

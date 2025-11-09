@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { Venue, VenueService } from './venue.service';
+import { VenueResponse, VenueService } from './venue.service';
 
 // Event model matching backend EventResponse
-export interface Event {
+export interface EventResponse {
   id?: number;
   name: string;
   date: string; // ISO date string
@@ -20,7 +20,6 @@ export interface Event {
 // Event creation/update request
 export interface EventRequest {
   name: string;
-  location: string;
   date: string;
   venueId?: number;
 }
@@ -36,24 +35,24 @@ export class EventService {
   constructor(private readonly http: HttpClient) { }
 
   // Get all events
-  getAll(): Observable<Event[]> {
-    return this.http.get<Event[]>(this.apiUrl);
+  getAll(): Observable<EventResponse[]> {
+    return this.http.get<EventResponse[]>(this.apiUrl);
   }
 
 
   // Get a single event by ID
-  getById(id: number): Observable<Event> {
-    return this.http.get<Event>(`${this.apiUrl}/${id}`);
+  getById(id: number): Observable<EventResponse> {
+    return this.http.get<EventResponse>(`${this.apiUrl}/${id}`);
   }
 
   // Create a new event
-  create(event: EventRequest): Observable<Event> {
-    return this.http.post<Event>(this.apiUrl, event);
+  create(event: EventRequest): Observable<EventResponse> {
+    return this.http.post<EventResponse>(this.apiUrl, event);
   }
 
   // Update an existing event
-  update(id: number, event: EventRequest): Observable<Event> {
-    return this.http.put<Event>(`${this.apiUrl}/${id}`, event);
+  update(id: number, event: EventRequest): Observable<EventResponse> {
+    return this.http.put<EventResponse>(`${this.apiUrl}/${id}`, event);
   }
 
   // Delete an event
@@ -65,7 +64,7 @@ export class EventService {
   }
 
   // Get all venues
-  getVenues(): Observable<Venue[]> {
+  getVenues(): Observable<VenueResponse[]> {
     return new VenueService(this.http).getAll();
   }
 
