@@ -30,7 +30,14 @@
 
     <!-- Event Form -->
     <section class="form-section">
-        <h2>Create New Event</h2>
+        <div class="section-header">
+            <h2>{{ isEditMode ? 'Edit Event' : 'Create New Event' }}</h2>
+            @if (isEditMode) {
+            <button type="button" class="btn-cancel" (click)="cancelEdit()">
+                Cancel Edit
+            </button>
+            }
+        </div>
         <form class="event-form" (ngSubmit)="addEvent()">
             <div class="form-group">
                 <label for="eventName">Event Name</label>
@@ -74,11 +81,15 @@
 
             <button type="submit" class="btn-primary" [disabled]="isLoading">
                 <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    @if (isEditMode) {
+                    <path d="M13.586 3a2 2 0 0 1 2.828 2.828l-.793.793-2.828-2.828.793-.793zM2 13.586 11.293 4.293l2.828 2.828L4.828 16.414a1 1 0 0 1-.5.263l-3 0.5a.5.5 0 0 1-.586-.586l.5-3a1 1 0 0 1 .263-.5z" />
+                    } @else {
                     <path fill-rule="evenodd"
                         d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
                         clip-rule="evenodd" />
+                    }
                 </svg>
-                Create Event
+                {{ isEditMode ? 'Update Event' : 'Create Event' }}
             </button>
         </form>
     </section>
@@ -104,9 +115,16 @@
 
         <div class="events-grid">
             @for (event of events; track event.id) {
-            <div class="event-card">
+            <div class="event-card" [class.editing]="editingEventId === event.id">
                 <div class="event-header">
                     <h3 class="event-name">{{ event.name }}</h3>
+                    <button class="btn-edit" (click)="editEvent(event.id)" title="Edit event">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20"
+                            height="20">
+                            <path
+                                d="M13.586 3a2 2 0 0 1 2.828 2.828l-.793.793-2.828-2.828.793-.793zM2 13.586 11.293 4.293l2.828 2.828L4.828 16.414a1 1 0 0 1-.5.263l-3 0.5a.5.5 0 0 1-.586-.586l.5-3a1 1 0 0 1 .263-.5z" />
+                        </svg>
+                    </button>
                     <button class="btn-delete" (click)="deleteEvent(event.id)" title="Delete event">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd"

@@ -19,6 +19,9 @@ export class Venue {
   venues: VenueResponse[] = [];
   isLoading: boolean = false;
   errorMessage: string = '';
+  
+  editingVenueId: number | undefined;
+  isEditMode: boolean = false;
 
   fieldErrors: { [key: string]: string } = {};
 
@@ -36,7 +39,7 @@ export class Venue {
         this.toast?.success('Venues loaded successfully');
       },
       error: (error) => {
-        const errorMsg = this.formatError(error);
+        const errorMsg = this.formatError(error.error.message);
         this.errorMessage = errorMsg;
         this.isLoading = false;
         this.toast?.error(this.errorMessage);
@@ -48,33 +51,43 @@ export class Venue {
     this.fieldErrors = {};
     this.isLoading = true;
     this.errorMessage = '';
-    this.venueService.create({
+
+    const venueData = {
       name: this.name,
       address: this.address,
       capacity: this.capacity
-    }).subscribe({
-      next: (venue) => {
-        this.venues.push(venue);
-        this.toast?.success('Venue created successfully');
-        this.name = '';
-        this.address = '';
-        this.capacity = undefined;
-        this.fieldErrors = {};
-        this.isLoading = false;
-      },
-      error: (err) => {
-        const errorMsg = this.formatError(err);
-        this.errorMessage = errorMsg;
-        this.toast?.error(errorMsg);
+    };
 
-        if (err?.error?.errors && Array.isArray(err.error.errors)) {
-          for (const e of err.error.errors) {
-            this.fieldErrors[e.field] = e.message;
+    if (this.isEditMode && this.editingVenueId) {
+      // Update existing venue
+      this.venueService.update(this.editingVenueId, venueData).subscribe({
+        next: (updatedVenue) => {
+          const index = this.venues.findIndex(v => v.id === this.editingVenueId);
+          if (index !== -1) {
+            this.venues[index] = updatedVenue;
           }
+          this.toast?.success('Venue updated successfully');
+          this.resetForm();
+          this.isLoading = false;
+        },
+        error: (err) => {
+          this.handleError(err);
         }
-        this.isLoading = false;
-      }
-    });
+      });
+    } else {
+      // Create new venue
+      this.venueService.create(venueData).subscribe({
+        next: (newVenue) => {
+          this.venues.push(newVenue);
+          this.toast?.success('Venue added successfully');
+          this.resetForm();
+          this.isLoading = false;
+        },
+        error: (err) => {
+          this.handleError(err);
+        }
+      });
+    }
   }
 
   deleteVenue(id: number | undefined) {
@@ -85,12 +98,55 @@ export class Venue {
           this.toast?.success('Venue deleted successfully');
         },
         error: (err) => {
-          const errorMsg = this.formatError(err);
+          const errorMsg = this.formatError(err.error.message);
           this.errorMessage = errorMsg;
           this.toast?.error(errorMsg);
         }
       });
     }
+  }
+
+  editVenue(id: number | undefined) {
+    if (id) {
+      const venue = this.venues.find(v => v.id === id);
+      if (venue) {
+        this.name = venue.name;
+        this.address = venue.address ?? '';
+        this.capacity = venue.capacity;
+
+        this.editingVenueId = venue.id;
+        this.isEditMode = true;
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  }
+
+  cancelEdit() {
+    this.resetForm();
+  }
+
+  private resetForm() {
+    this.name = '';
+    this.address = '';
+    this.capacity = undefined;
+    this.editingVenueId = undefined;
+    this.isEditMode = false;
+    this.fieldErrors = {};
+  }
+
+  // NEW: Centralized error handling
+  private handleError(err: any) {
+    const errorMsg = this.formatError(err.error);
+    this.errorMessage = errorMsg;
+    this.toast?.error(errorMsg);
+
+    if (err?.error?.errors && Array.isArray(err.error.errors)) {
+      for (const e of err.error.errors) {
+        this.fieldErrors[e.field] = e.message;
+      }
+    }
+    this.isLoading = false;
   }
 
   private formatError(err: any): string {

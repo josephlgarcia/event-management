@@ -30,7 +30,14 @@
 
     <!-- Venue Form -->
     <section class="form-section">
-        <h2>Create New Venue</h2>
+        <div class="section-header">
+            <h2>{{ isEditMode ? 'Edit Venue' : 'Create New Venue' }}</h2>
+            @if (isEditMode) {
+            <button type="button" class="btn-cancel" (click)="cancelEdit()">
+                Cancel Edit
+            </button>
+            }
+        </div>
         <form class="venue-form" (ngSubmit)="addVenue()">
             <div class="form-group">
                 <label for="venueName">Venue Name</label>
@@ -72,7 +79,7 @@
                         d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
                         clip-rule="evenodd" />
                 </svg>
-                Create Venue
+                {{ isEditMode ? 'Update Venue' : 'Create Venue' }}
             </button>
         </form>
     </section>
@@ -83,13 +90,12 @@
             <h2>Venues List</h2>
             <span class="venue-count">{{ venues.length }} venue(s)</span>
         </div>
-
         @if (venues.length === 0 && !isLoading) {
         <div class="empty-state">
             <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
             <h3>No venues yet</h3>
             <p>Create your first venue using the form above</p>
@@ -98,15 +104,16 @@
 
         <div class="venues-grid">
             @for (venue of venues; track venue.id) {
-            <div class="venue-card">
+            <div class="event-card" [class.editing]="editingVenueId === venue.id">
                 <div class="venue-header">
-                    <div class="venue-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z"
-                                clip-rule="evenodd" />
+                    <h3 class="venue-name">{{ venue.name }}</h3>
+                    <button class="btn-edit" (click)="editVenue(venue.id)" title="Edit venue">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20"
+                            height="20">
+                            <path
+                                d="M13.586 3a2 2 0 0 1 2.828 2.828l-.793.793-2.828-2.828.793-.793zM2 13.586 11.293 4.293l2.828 2.828L4.828 16.414a1 1 0 0 1-.5.263l-3 0.5a.5.5 0 0 1-.586-.586l.5-3a1 1 0 0 1 .263-.5z" />
                         </svg>
-                    </div>
+                    </button>
                     <button class="btn-delete" (click)="deleteVenue(venue.id)" title="Delete venue">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd"
@@ -115,8 +122,6 @@
                         </svg>
                     </button>
                 </div>
-
-                <h3 class="venue-name">{{ venue.name }}</h3>
 
                 <div class="venue-details">
                     @if (venue.address) {
