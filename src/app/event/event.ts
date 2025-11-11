@@ -139,6 +139,11 @@ export class Event {
 
   deleteEvent(id: number | undefined) {
     if (id) {
+
+      if (!confirm('Are you sure you want to delete this event?')) {
+        return;
+      }
+
       this.eventService.delete(id).subscribe({
         next: () => {
           this.events = this.events.filter(e => e.id !== id);

@@ -92,10 +92,20 @@ export class Venue {
 
   deleteVenue(id: number | undefined) {
     if (id) {
+
+      if (!confirm('Are you sure you want to delete this venue?')) {
+        return;
+      }
+
       this.venueService.delete(id).subscribe({
         next: () => {
           this.venues = this.venues.filter(v => v.id !== id);
           this.toast?.success('Venue deleted successfully');
+
+          // If we were editing this venue, cancel edit mode
+          if (this.editingVenueId === id) {
+            this.resetForm();
+          }
         },
         error: (err) => {
           const errorMsg = this.formatError(err.error.message);
